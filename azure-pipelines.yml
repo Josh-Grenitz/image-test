@@ -30,11 +30,15 @@ stages:
 
       # Build & push (the task will use your service connection and prepend the ACR login server)
       - task: Docker@2
-        displayName: 'Build and push admindashboard'
         inputs:
-          command: 'buildAndPush'
-          repository: '$(imageRepository)'         # -> admindashboard
-          dockerfile: '$(dockerfilePath)'          # -> Dockerfile
-          containerRegistry: '$(dockerRegistryServiceConnection)'
-          tags: '$(tags)'
-          # Optional          # Optional if Dockerfile isn't in repo root:
+          containerRegistry: 'dtcrtestregistrycentraluspoc'
+          repository: 'admindashboard'
+          command: 'build'
+          Dockerfile: '**/Dockerfile'
+          tags: '1.0.0'
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'dtcrtestregistrycentraluspoc'
+          repository: 'admindashboard'
+          command: 'push'
+          tags: '1.0.0'

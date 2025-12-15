@@ -13,8 +13,9 @@ variables:
   dockerRegistryServiceConnection: '3157937c-6339-4d35-babc-f573530e21c6'
   imageRepository: 'admindashboard'
   containerRegistry: 'dtcrtestregistrycentraluspoc-gxb3a0c4cddgayev.azurecr.io'
-  dockerfilePath: '**/Dockerfile'
+  dockerfilePath: 'Dockerfile'
   tag: '$(Build.BuildId)'
+  system.debug: true
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'

@@ -1,0 +1,204 @@
+{
+  "version": 3,
+  "targets": {
+    "net8.0": {}
+  },
+  "libraries": {},
+  "projectFileDependencyGroups": {
+    "net8.0": [
+      "Microsoft.AspNetCore.Mvc.NewtonsoftJson >= 8.0.1",
+      "Microsoft.EntityFrameworkCore.Design >= 8.0.0",
+      "Microsoft.Identity.Web >= 2.16.0",
+      "Microsoft.VisualStudio.Web.CodeGeneration.Design >= 8.0.0",
+      "NLog.Web.AspNetCore >= 5.3.8",
+      "PolicyAdmin >= 2.0.0",
+      "SB.Derivatives.AspNetCore.ApiActiveDirectoryAuthorization >= 2.0.0",
+      "SB.Derivatives.AspNetCore.CommonApiUtilities >= 2.0.1",
+      "Swashbuckle.AspNetCore.Swagger >= 6.5.0",
+      "Swashbuckle.AspNetCore.SwaggerGen >= 6.5.0",
+      "Swashbuckle.AspNetCore.SwaggerUI >= 6.5.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\grenit\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\AdminDashboardService\\AdminDashboardService.csproj",
+      "projectName": "AdminDashboardService",
+      "projectPath": "C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\AdminDashboardService\\AdminDashboardService.csproj",
+      "packagesPath": "C:\\Users\\grenit\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\AdminDashboardService\\obj\\",
+      "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
+      "configFilePaths": [
+        "C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\NuGet.Config",
+        "C:\\Users\\grenit\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net8.0"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\nugetresources": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "projectReferences": {}
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "9.0.300"
+    },
+    "frameworks": {
+      "net8.0": {
+        "targetAlias": "net8.0",
+        "dependencies": {
+          "Microsoft.AspNetCore.Mvc.NewtonsoftJson": {
+            "target": "Package",
+            "version": "[8.0.1, )"
+          },
+          "Microsoft.EntityFrameworkCore.Design": {
+            "target": "Package",
+            "version": "[8.0.0, )"
+          },
+          "Microsoft.Identity.Web": {
+            "target": "Package",
+            "version": "[2.16.0, )"
+          },
+          "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
+            "target": "Package",
+            "version": "[8.0.0, )"
+          },
+          "NLog.Web.AspNetCore": {
+            "target": "Package",
+            "version": "[5.3.8, )"
+          },
+          "PolicyAdmin": {
+            "target": "Package",
+            "version": "[2.0.0, )"
+          },
+          "SB.Derivatives.AspNetCore.ApiActiveDirectoryAuthorization": {
+            "target": "Package",
+            "version": "[2.0.0, )"
+          },
+          "SB.Derivatives.AspNetCore.CommonApiUtilities": {
+            "target": "Package",
+            "version": "[2.0.1, )"
+          },
+          "Swashbuckle.AspNetCore.Swagger": {
+            "target": "Package",
+            "version": "[6.5.0, )"
+          },
+          "Swashbuckle.AspNetCore.SwaggerGen": {
+            "target": "Package",
+            "version": "[6.5.0, )"
+          },
+          "Swashbuckle.AspNetCore.SwaggerUI": {
+            "target": "Package",
+            "version": "[6.5.0, )"
+          }
+        },
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.AspNetCore.App": {
+            "privateAssets": "none"
+          },
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  },
+  "logs": [
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "The local source 'C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\nugetresources' doesn't exist.",
+      "libraryId": "Microsoft.AspNetCore.Mvc.NewtonsoftJson"
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "The local source 'C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\nugetresources' doesn't exist.",
+      "libraryId": "Microsoft.EntityFrameworkCore.Design"
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "The local source 'C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\nugetresources' doesn't exist.",
+      "libraryId": "NLog.Web.AspNetCore"
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "The local source 'C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\nugetresources' doesn't exist.",
+      "libraryId": "Microsoft.VisualStudio.Web.CodeGeneration.Design"
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "The local source 'C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\nugetresources' doesn't exist.",
+      "libraryId": "SB.Derivatives.AspNetCore.ApiActiveDirectoryAuthorization"
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "The local source 'C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\nugetresources' doesn't exist.",
+      "libraryId": "SB.Derivatives.AspNetCore.CommonApiUtilities"
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "The local source 'C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\nugetresources' doesn't exist.",
+      "libraryId": "Microsoft.Identity.Web"
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "The local source 'C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\nugetresources' doesn't exist.",
+      "libraryId": "Swashbuckle.AspNetCore.Swagger"
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "The local source 'C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\nugetresources' doesn't exist.",
+      "libraryId": "Swashbuckle.AspNetCore.SwaggerGen"
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "The local source 'C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\nugetresources' doesn't exist.",
+      "libraryId": "Swashbuckle.AspNetCore.SwaggerUI"
+    }
+  ]
+}

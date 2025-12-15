@@ -26,7 +26,7 @@ stages:
         displayName: 'Login to ACR'
         inputs:
           command: 'login'
-          containerRegistry: '$(dockerRegistryServiceConnection)'
+          containerRegistry: dtcrtestregistrycentraluspoc
 
       # Build & push (the task will use your service connection and prepend the ACR login server)
       - task: Docker@2

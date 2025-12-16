@@ -9,11 +9,6 @@ on:
   push:
     branches: [ "main" ]
 
-env:
-  REGISTRY: dtcrtestregistrycentraluspoc-gxb3a0c4cddgayev.azurecr.io
-  IMAGE_NAME: admindashboard
-
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -35,7 +30,7 @@ jobs:
           # Azure Container Registry tenant
           tenant: fa7e0438-d050-4701-ab89-8ae378647e1b
           # The name of the ACR, minus the .azurecr.io
-          registry: dtcrtestregistrycentraluspoc-gxb3a0c4cddgayev
+          registry: dtcrtestregistrycentraluspoc
           # Repository to use
           repository: admindashboard
           # Docker image name

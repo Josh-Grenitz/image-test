@@ -6,7 +6,7 @@ trigger:
 
 variables:
   # Docker Registry service connection (yours)
-  dockerRegistryServiceConnection: '3157937c-6339-4d35-babc-f573530e21c6'
+  dockerRegistryServiceConnection: 'dtcrtestregistrycentraluspoc'
   imageRepository: 'admindashboard'    # repository name in ACR (auto-creates on first push)
   dockerfilePath: 'Dockerfile'
   tags: '$(Build.BuildId)'

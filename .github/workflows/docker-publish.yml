@@ -1,0 +1,47 @@
+name: Docker
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: dtcrtestregistrycentraluspoc-gxb3a0c4cddgayev.azurecr.io
+  IMAGE_NAME: admindashboard
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+
+    steps:
+      - name: Azure Container Registry Build
+        uses: Azure/acr-build@v1
+        with:
+          # Service Principal with Contributor role on the ACR
+          service_principal: 8bcad1f7-d6ac-432b-b25b-fb8cc5004fed
+          # Service Principal password
+          service_principal_password: Aea8Q~w1yiyjguRH86Q9wqHAI_vpvD4Z4UGgzbR9
+          # Azure Container Registry tenant
+          tenant: 163d1b5b-c9ae-4cc1-affb-bb260d2b95a3
+          # The name of the ACR, minus the .azurecr.io
+          registry: dtcrtestregistrycentraluspoc-gxb3a0c4cddgayev
+          # Repository to use
+          repository: admindashboard
+          # Docker image name
+          image: admindashboard
+          # Docker image tag, default to the commit SHA
+          tag: v1.0.0
+          # The folder in the Github repo that holds the source
+          folder: .
+          

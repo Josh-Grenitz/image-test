@@ -33,7 +33,7 @@ jobs:
           # Service Principal password
           service_principal_password: Aea8Q~w1yiyjguRH86Q9wqHAI_vpvD4Z4UGgzbR9
           # Azure Container Registry tenant
-          tenant: 163d1b5b-c9ae-4cc1-affb-bb260d2b95a3
+          tenant: fa7e0438-d050-4701-ab89-8ae378647e1b
           # The name of the ACR, minus the .azurecr.io
           registry: dtcrtestregistrycentraluspoc-gxb3a0c4cddgayev
           # Repository to use

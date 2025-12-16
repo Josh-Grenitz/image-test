@@ -29,7 +29,7 @@ jobs:
         uses: Azure/acr-build@v1
         with:
           # Service Principal with Contributor role on the ACR
-          service_principal: 8bcad1f7-d6ac-432b-b25b-fb8cc5004fed
+          service_principal: 9f3bdbb4-86c3-44d7-9f12-70af1957b496
           # Service Principal password
           service_principal_password: Aea8Q~w1yiyjguRH86Q9wqHAI_vpvD4Z4UGgzbR9
           # Azure Container Registry tenant

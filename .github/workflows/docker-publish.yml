@@ -1,42 +1,34 @@
-name: Docker
 
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
+name: Build locally on runner & Push to ACR
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
+
+env:
+  ACR_NAME: dtcrtestregistrycentraluspoc
+  IMAGE_NAME: admindashboard/admindashboard
+  IMAGE_TAG: v1.0.0
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
-      id-token: write
-
     steps:
-      - name: Azure Container Registry Build
-        uses: Azure/acr-build@v1
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Log in to ACR
+      - name: Docker login to ACR
+        uses: docker/login-action@v3
         with:
-          # Service Principal with Contributor role on the ACR
-          service_principal: 9f3bdbb4-86c3-44d7-9f12-70af1957b496
-          # Service Principal password
-          service_principal_password: Aea8Q~w1yiyjguRH86Q9wqHAI_vpvD4Z4UGgzbR9
-          # Azure Container Registry tenant
-          tenant: fa7e0438-d050-4701-ab89-8ae378647e1b
-          # The name of the ACR, minus the .azurecr.io
-          registry: dtcrtestregistrycentraluspoc
-          # Repository to use
-          repository: admindashboard
-          # Docker image name
-          image: admindashboard
-          # Docker image tag, default to the commit SHA
-          tag: v1.0.0
-          # The folder in the Github repo that holds the source
-          folder: .
-          
+          registry: ${{ env.ACR_NAME }}.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}     # optional if using az acr login, but this is simple
+          password: ${{ secrets.ACR_PASSWORD }}     # (enable Admin user on ACR to get these creds)
+
+      # Build & push
+      - name: Build & Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}

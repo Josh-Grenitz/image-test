@@ -2,7 +2,7 @@
 name: Build locally on runner & Push to ACR
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 env:
   ACR_NAME: dtcrtestregistrycentraluspoc

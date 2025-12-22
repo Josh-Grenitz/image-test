@@ -6,6 +6,7 @@ on:
 
 env:
   ACR_NAME: dtcrtestregistrycentraluspoc
+  ACR_LOGIN: dtcrtestregistrycentraluspoc-gxb3a0c4cddgayev.azurecr.io
   IMAGE_NAME: admindashboard/admindashboard
   IMAGE_TAG: v1.0.0
 
@@ -20,7 +21,7 @@ jobs:
       - name: Docker login to ACR
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.ACR_NAME }}.azurecr.io
+          registry: ${{ env.ACR_LOGIN }}
           username: ${{ secrets.ACR_USERNAME }}     # optional if using az acr login, but this is simple
           password: ${{ secrets.ACR_PASSWORD }}     # (enable Admin user on ACR to get these creds)
 

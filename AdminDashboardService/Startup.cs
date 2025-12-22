@@ -164,6 +164,8 @@ namespace AdminDashboardService
                 m_logger.LogError(e, "Error ConfigureServices for Startup");
                 throw;
             }
+
+            services.AddHealthChecks();
         }
         
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -179,6 +181,7 @@ namespace AdminDashboardService
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AdminDashboard API v1"));
             app.UseRouting();
             app.UseCors("AllowHeaders");
+            app.UseHealthChecks("/");
 
             app.UseAuthentication();
             app.UseAuthorization();

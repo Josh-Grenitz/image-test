@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.36408.4 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdminDashboardService", "AdminDashboardService\AdminDashboardService.csproj", "{224E8E8E-36FF-4155-80E1-6A3A9BD43DB5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SB.AdminDashboard.EF", "SB.AdminDashboard.EF\SB.AdminDashboard.EF.csproj", "{23E73AD4-C346-4532-9892-2C3E6E9DD5F5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -9,11 +9,6 @@ using Microsoft.AspNetCore.Http;
 
 namespace AdminDashboard.Controllers
 {
-#if DEBUG
-#else
-    [Authorize]
-#endif
-    [Produces("application/json")]
     public class LogController : Controller
     {
         private readonly ILogger<LogController> m_logger;

@@ -28,12 +28,10 @@ namespace AdminDashboard.Controllers
             m_fileUtilities = fileUtilities;
             m_expandoObjectHandler = expandoObjectHandler;
         }
-#if DEBUG
-#else
-        [Authorize(Policy = "READ")]
-#endif
+
         [HttpGet]
         [Route("api/Admin/Log/Read")]
+        [Authorize(Policy = "Dashboard:Read")]
         public IActionResult Get()
         {
             try
@@ -49,12 +47,10 @@ namespace AdminDashboard.Controllers
             }
         }
 
-#if DEBUG
-#else
-        [Authorize(Policy = "READ")]
-#endif
+
         [HttpGet]
         [Route("api/Admin/Log/Read/{directoryName}/{logFileName}")]
+        [Authorize(Policy = "Dashboard:Read")]
         public IActionResult Get(string directoryName, string logFileName)
         {
             string ApiEndpoint = $"{directoryName}\\{logFileName}";

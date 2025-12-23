@@ -18,11 +18,12 @@
       "applicationUrl": "http://localhost:53585/"
     }
   },
+  "$schema": "http://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": true,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:8000/",
+      "applicationUrl": "http://localhost:53585/",
       "sslPort": 0
     }
   }

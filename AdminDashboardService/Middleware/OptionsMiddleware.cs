@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 
-namespace AdminDashboardService
+namespace AdminDashboardService.Middleware
 {
     public class OptionsMiddleware
     {

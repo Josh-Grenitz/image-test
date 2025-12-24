@@ -11,30 +11,21 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="15.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.Identity.Web" Version="2.16.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.0" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.8" />
     <PackageReference Include="PolicyAdmin" Version="2.0.0" />
-    <PackageReference Include="SB.Derivatives.AspNetCore.ApiActiveDirectoryAuthorization" Version="4.0.1" />
+    <PackageReference Include="SB.Derivatives.AspNetCore.ApiActiveDirectoryAuthorization" Version="2.0.0" />
     <PackageReference Include="SB.Derivatives.AspNetCore.CommonApiUtilities" Version="2.0.1" />
-    <PackageReference Include="SB.Derivatives.AspNetCore.EmailUtility" Version="1.0.2" />
-    <PackageReference Include="SB.Derivatives.AspNetCore.LoggerUtility" Version="1.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="8.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\SB.AdminDashboard.EF\SB.AdminDashboard.EF.csproj" />
   </ItemGroup>
 
   <ItemGroup>

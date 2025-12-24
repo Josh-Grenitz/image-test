@@ -21,7 +21,10 @@ using Microsoft.AspNetCore.Http;
 
 namespace AdminDashboard.Controllers
 {
-    [AllowAnonymous]
+#if DEBUG
+#else
+    [Authorize]
+#endif
     [Produces("application/json")]
     // [EnableCors("AllowHeaders")]
     public class DashboardController : Controller
@@ -51,18 +54,19 @@ namespace AdminDashboard.Controllers
             m_activeDirectoryAuthenticationCache = activeDirectoryAuthenticationCache;
         }
 
+#if DEBUG
+#else
+        [Authorize(Policy = "CREATE")]
+#endif
         [HttpPost]
         [Route("api/Admin/Dashboard/Create/{ApiEndpoint}")]
-        [Authorize(Policy = "Dashboard:Write")]
-        public IActionResult Post(string ApiEndpoint, [FromQuery] string BusinessUnit, [FromBody] JObject newData)
+        public IActionResult Post(string ApiEndpoint, [FromBody] JObject newData)
         {
             try
             {
                 ExpandoObject[] appMap = (ExpandoObject[])m_expandoObjectHandler.GetExpandoProperty("ApplicationMapping", m_applicationConfiguration.GetApplicationSqlConfiguration<object>("ApplicationMapping"));
                 ExpandoObject endPoint = appMap.FirstOrDefault(ep => (ep as IDictionary<string, object>)["ApiEndpoint"].ToString().ToLower() == ApiEndpoint.ToLower());
-                
-                string database = "SqlDatabaseConnectionString" + BusinessUnit.ToUpper();
-                
+
                 if ((string)m_expandoObjectHandler.GetExpandoProperty("Type", endPoint) == "SQL")
                 {
                     if (!newData.HasValues)
@@ -71,8 +75,8 @@ namespace AdminDashboard.Controllers
                     m_sqlCrud.CreateDataInSqlTable(
                         m_jsonUtilities.ConvertJsonToDataTable(newData[ApiEndpoint]),
                         (string)m_expandoObjectHandler.GetExpandoProperty("Map", endPoint),
-                        m_applicationConfiguration.GetApplicationFileConfiguration<string>(database),
-                         this.User.Identity.Name.ToString());
+                        m_applicationConfiguration.GetApplicationFileConfiguration<string>("SqlDatabaseConnectionString"),
+                        this.User.Identity.Name.ToString());
                     
                     var logData = new Dictionary<string, string>()
                     {
@@ -81,14 +85,14 @@ namespace AdminDashboard.Controllers
                         { "ApiEndpoint", (string)m_expandoObjectHandler.GetExpandoProperty("ApiEndpoint", endPoint) },
                         { "OldValue", "" },
                         { "NewValue", newData.ToString(Formatting.None) },
-                        { "User",  this.User.Identity.Name.ToString() }
+                        { "User", this.User.Identity.Name.ToString() }
                     };
                     
                     m_sqlCrud.LogForAudtit(m_applicationConfiguration.GetApplicationFileConfiguration<string>("AuditTableName"),
                                            logData,
-                                           m_applicationConfiguration.GetApplicationFileConfiguration<string>(database));
+                                           m_applicationConfiguration.GetApplicationFileConfiguration<string>("SqlDatabaseConnectionString"));
 
-                    if (ApiEndpoint == "DODSDevOpsAdminDashboardConfigMapping")
+                    if (ApiEndpoint == "DODSDevOpsAdminDashboardMapping")
                         m_applicationConfiguration.RefreshMapping();
                     return Ok();
                 }
@@ -105,12 +109,12 @@ namespace AdminDashboard.Controllers
                         { "ApiEndpoint", (string)m_expandoObjectHandler.GetExpandoProperty("ApiEndpoint", endPoint) },
                         { "OldValue", oldLocation },
                         { "NewValue", (string)m_expandoObjectHandler.GetExpandoProperty("Map", endPoint) },
-                        { "User",  this.User.Identity.Name.ToString()}
+                        { "User", this.User.Identity.Name.ToString() }
                     };
 
                     m_sqlCrud.LogForAudtit(m_applicationConfiguration.GetApplicationFileConfiguration<string>("AuditTableName"),
                                            logData,
-                                           m_applicationConfiguration.GetApplicationFileConfiguration<string>(database));
+                                           m_applicationConfiguration.GetApplicationFileConfiguration<string>("SqlDatabaseConnectionString"));
                     return Ok();
                 }
             }
@@ -121,18 +125,19 @@ namespace AdminDashboard.Controllers
             }
         }
 
-
+#if DEBUG
+#else
+        [Authorize(Policy = "READ")]
+#endif
         [HttpGet]
         [Route("api/Admin/Dashboard/ReadSchema")]
-        [Authorize(Policy = "Dashboard:Write")]
-        public IActionResult Get(string Application, string Config, [FromQuery] string BusinessUnit)
+        public IActionResult Get(string Application, string Config)
         {
             string queryString = $"Application = '{Application}' AND Configuration = '{Config}'";
             string columnName = "Map";
             try
             {
-                string database = "SqlDatabaseConnectionString" + BusinessUnit.ToUpper();
-                string config = m_applicationConfiguration.GetApplicationFileConfiguration<string>(database);
+                string config = m_applicationConfiguration.GetApplicationFileConfiguration<string>("SqlDatabaseConnectionString");
                 if (string.IsNullOrWhiteSpace(config)) {
                     throw new ArgumentException("Parameter cannot be null or empty string.", nameof(config));
                 }
@@ -150,12 +155,7 @@ namespace AdminDashboard.Controllers
                         throw new InvalidOperationException("Failed to connect to SQL server.");
                     }
 
-                    DataRow[] rows = DataCache.Current.DashboardMapping.Select(queryString);
-                    if (rows.Length == 0)
-                    {
-                        throw new Exception("No matching rows found.");
-                    }
-                    string targetTableName = rows[0][columnName].ToString();
+                    string targetTableName = DataCache.Current.DashboardMapping.Select(queryString)[0][columnName].ToString();
                     string sqlStatement = $"SELECT * FROM {targetTableName};";
                     using (var cmd = new SqlCommand(sqlStatement, conn))
                     {
@@ -180,11 +180,13 @@ namespace AdminDashboard.Controllers
 
         }
 
-
+#if DEBUG
+#else
+        [Authorize(Policy = "READ")]
+#endif
         [HttpGet]
         [Route("api/Admin/Dashboard/Read/{ApiEndpoint}")]
-        [Authorize(Policy = "Dashboard:Read")]
-        public IActionResult Get(string ApiEndpoint, [FromQuery] string BusinessUnit)
+        public IActionResult Get(string ApiEndpoint)
         {
             try
             {
@@ -200,21 +202,20 @@ namespace AdminDashboard.Controllers
                         return Ok(m_applicationConfiguration.GetApplicationSqlConfiguration<object>("ApplicationCacheMapping"));
                     default:
                         ExpandoObject[] appMap = (ExpandoObject[])m_expandoObjectHandler.GetExpandoProperty("ApplicationMapping", m_applicationConfiguration.GetApplicationSqlConfiguration<object>("ApplicationMapping"));
-                        ExpandoObject endPoint = appMap.FirstOrDefault(ep => (ep as IDictionary<string, object>)["ApiEndpoint"].ToString().ToLower() == ApiEndpoint.ToLower());
+                            ExpandoObject endPoint = appMap.FirstOrDefault(ep => (ep as IDictionary<string, object>)["ApiEndpoint"].ToString().ToLower() == ApiEndpoint.ToLower());
                         if (endPoint != null && (string)m_expandoObjectHandler.GetExpandoProperty("Type", endPoint) == "SQL")
                         {
-                            string database = "SqlDatabaseConnectionString" + BusinessUnit;
                             m_sqlCrud.ReadDataFromSqlTable(
                                 ApiEndpoint,
                                 m_applicationConfiguration.GetMasterExpando(),
                                 (string)m_expandoObjectHandler.GetExpandoProperty("Map", endPoint),
                                 (string)m_expandoObjectHandler.GetExpandoProperty("GetConditions", endPoint),
-                                m_applicationConfiguration.GetApplicationFileConfiguration<string>(database));
-
+                                m_applicationConfiguration.GetApplicationFileConfiguration<string>("SqlDatabaseConnectionString"));
+                            
                             return Ok(m_expandoObjectHandler.GetExpandoProperty(ApiEndpoint, m_applicationConfiguration.GetMasterExpando()));
                         }
                         else if(endPoint == null)
-                        {
+                            {
                             return Ok($"Invalid endpoint: {ApiEndpoint}");
                         }
                         else
@@ -229,18 +230,18 @@ namespace AdminDashboard.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
-
+#if DEBUG
+#else
+        [Authorize(Policy = "UPDATE")]
+#endif
         [HttpPut]
         [Route("api/Admin/Dashboard/Update/{ApiEndpoint}")]
-        [Authorize(Policy = "Dashboard:Update")]
-        public IActionResult Put(string ApiEndpoint, [FromQuery] string BusinessUnit, [FromBody] JObject data)
+        public IActionResult Put(string ApiEndpoint, [FromBody] JObject data)
         {
             try
             {
                 ExpandoObject[] appMap = (ExpandoObject[])m_expandoObjectHandler.GetExpandoProperty("ApplicationMapping", m_applicationConfiguration.GetApplicationSqlConfiguration<object>("ApplicationMapping"));
                 ExpandoObject endPoint = appMap.FirstOrDefault(ep => (ep as IDictionary<string, object>)["ApiEndpoint"].ToString().ToLower() == ApiEndpoint.ToLower());
-
-                string database = "SqlDatabaseConnectionString" + BusinessUnit.ToUpper();
 
                 if ((string)m_expandoObjectHandler.GetExpandoProperty("Type", endPoint) == "SQL")
                 {
@@ -251,8 +252,8 @@ namespace AdminDashboard.Controllers
                         (string)m_expandoObjectHandler.GetExpandoProperty("Map", endPoint),
                         m_jsonUtilities.ConvertJsonToDictionaryCleaned(data[ApiEndpoint + ".old"]),
                         m_jsonUtilities.ConvertJsonToDictionaryCleaned(data[ApiEndpoint + ".new"]),
-                        m_applicationConfiguration.GetApplicationFileConfiguration<string>(database),
-                         this.User.Identity.Name.ToString());
+                        m_applicationConfiguration.GetApplicationFileConfiguration<string>("SqlDatabaseConnectionString"),
+                        this.User.Identity.Name.ToString());
 
                     var logData = new Dictionary<string, string>()
                     {
@@ -261,14 +262,14 @@ namespace AdminDashboard.Controllers
                         { "ApiEndpoint", (string)m_expandoObjectHandler.GetExpandoProperty("ApiEndpoint", endPoint) },
                         { "OldValue", data[ApiEndpoint + ".old"].ToString(Formatting.None) },
                         { "NewValue", data[ApiEndpoint + ".new"].ToString(Formatting.None) },
-                        { "User",  this.User.Identity.Name.ToString()}
+                        { "User", this.User.Identity.Name.ToString() }
                     };
 
                     m_sqlCrud.LogForAudtit(m_applicationConfiguration.GetApplicationFileConfiguration<string>("AuditTableName"),
                                            logData,
-                                           m_applicationConfiguration.GetApplicationFileConfiguration<string>(database));
+                                           m_applicationConfiguration.GetApplicationFileConfiguration<string>("SqlDatabaseConnectionString"));
                    
-                    if (ApiEndpoint == "DODSDevOpsAdminDashboardConfigMapping")
+                    if (ApiEndpoint == "DODSDevOpsAdminDashboardMapping")
                         m_applicationConfiguration.RefreshMapping();
                     return Ok();
                 }
@@ -285,12 +286,12 @@ namespace AdminDashboard.Controllers
                         { "ApiEndpoint", (string)m_expandoObjectHandler.GetExpandoProperty("ApiEndpoint", endPoint) },
                         { "OldValue", oldLocation },
                         { "NewValue", (string)m_expandoObjectHandler.GetExpandoProperty("Map", endPoint) },
-                        { "User",  this.User.Identity.Name.ToString()}
+                        { "User", this.User.Identity.Name.ToString() }
                     };
 
                     m_sqlCrud.LogForAudtit(m_applicationConfiguration.GetApplicationFileConfiguration<string>("AuditTableName"),
                                            logData,
-                                           m_applicationConfiguration.GetApplicationFileConfiguration<string>(database));
+                                           m_applicationConfiguration.GetApplicationFileConfiguration<string>("SqlDatabaseConnectionString"));
                    
                     return Ok();
                 }
@@ -302,18 +303,18 @@ namespace AdminDashboard.Controllers
             }
         }
 
-
+#if DEBUG
+#else
+        [Authorize(Policy = "DELETE")]
+#endif
         [HttpDelete]
         [Route("api/Admin/Dashboard/Delete/{ApiEndpoint}")]
-        [Authorize(Policy = "Dashboard:Delete")]
-        public IActionResult Delete(string ApiEndpoint, [FromQuery] string BusinessUnit, [FromBody] JObject deadData)
+        public IActionResult Delete(string ApiEndpoint, [FromBody] JObject deadData)
         {
             try
             {
                 ExpandoObject[] appMap = (ExpandoObject[])m_expandoObjectHandler.GetExpandoProperty("ApplicationMapping", m_applicationConfiguration.GetApplicationSqlConfiguration<object>("ApplicationMapping"));
                 ExpandoObject endPoint = appMap.FirstOrDefault(ep => (ep as IDictionary<string, object>)["ApiEndpoint"].ToString().ToLower() == ApiEndpoint.ToLower());
-
-                string database = "SqlDatabaseConnectionString" + BusinessUnit.ToUpper();
 
                 if ((string)m_expandoObjectHandler.GetExpandoProperty("Type", endPoint) == "SQL")
                 {
@@ -323,7 +324,7 @@ namespace AdminDashboard.Controllers
                     m_sqlCrud.DeleteRowFromSqlTable(
                         (string)m_expandoObjectHandler.GetExpandoProperty("Map", endPoint),
                         m_jsonUtilities.ConvertJsonToDictionaryCleaned(deadData[ApiEndpoint]),
-                        m_applicationConfiguration.GetApplicationFileConfiguration<string>(database));
+                        m_applicationConfiguration.GetApplicationFileConfiguration<string>("SqlDatabaseConnectionString"));
 
                     var logData = new Dictionary<string, string>()
                     {
@@ -332,14 +333,14 @@ namespace AdminDashboard.Controllers
                         { "ApiEndpoint", (string)m_expandoObjectHandler.GetExpandoProperty("ApiEndpoint", endPoint) },
                         { "OldValue", deadData.ToString(Formatting.None) },
                         { "NewValue", "" },
-                        { "User",  this.User.Identity.Name.ToString()}
+                        { "User", this.User.Identity.Name.ToString() }
                     };
 
                     m_sqlCrud.LogForAudtit(m_applicationConfiguration.GetApplicationFileConfiguration<string>("AuditTableName"),
                                            logData,
-                                           m_applicationConfiguration.GetApplicationFileConfiguration<string>(database));
+                                           m_applicationConfiguration.GetApplicationFileConfiguration<string>("SqlDatabaseConnectionString"));
                                        
-                    if (ApiEndpoint == "DODSDevOpsAdminDashboardConfigMapping")
+                    if (ApiEndpoint == "DODSDevOpsAdminDashboardMapping")
                         m_applicationConfiguration.RefreshMapping();
                     return Ok();
                 }
@@ -356,12 +357,12 @@ namespace AdminDashboard.Controllers
                         { "ApiEndpoint", (string)m_expandoObjectHandler.GetExpandoProperty("ApiEndpoint", endPoint) },
                         { "OldValue", oldLocation },
                         { "NewValue", "" },
-                        { "User",  this.User.Identity.Name.ToString()}
+                        { "User", this.User.Identity.Name.ToString() }
                     };
 
                     m_sqlCrud.LogForAudtit(m_applicationConfiguration.GetApplicationFileConfiguration<string>("AuditTableName"),
                                            logData,
-                                           m_applicationConfiguration.GetApplicationFileConfiguration<string>(database));
+                                           m_applicationConfiguration.GetApplicationFileConfiguration<string>("SqlDatabaseConnectionString"));
                     
                     return Ok();
                 }
@@ -373,9 +374,12 @@ namespace AdminDashboard.Controllers
             }
         }
 
+#if DEBUG
+#else
+        [Authorize(Policy = "REFRESH")]
+#endif
         [HttpGet]
         [Route("api/Admin/Dashboard/RefreshMapping")]
-        [Authorize(Policy = "Dashboard:Refresh")]
         public IActionResult RefreshMapping()
         {
             try
@@ -390,15 +394,17 @@ namespace AdminDashboard.Controllers
             }
         }
 
-
+#if DEBUG
+#else
+        [Authorize(Policy = "REFRESH")]
+#endif
         [HttpGet]
         [Route("api/Admin/Dashboard/RefreshRoles")]
-        [Authorize(Policy = "Dashboard:Refresh")]
         public IActionResult RefreshRoles()
         {
             try
             {
-                m_logger.LogInformation($"Loading AdAuthenticationHelperCache information from SQL {m_applicationConfiguration.GetApplicationFileConfiguration<string>("SqlDatabaseConnectionStringFO")}");
+                m_logger.LogInformation($"Loading AdAuthenticationHelperCache information from SQL {m_applicationConfiguration.GetApplicationFileConfiguration<string>("SqlDatabaseConnectionString")}");
                 m_activeDirectoryAuthenticationCache.RefreshMiddlewareCache();
                 return Ok();
             }

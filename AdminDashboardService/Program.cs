@@ -1,265 +1,165 @@
-﻿using ActiveDirectoryAuthorization.ActiveDirectoryAuthorization;
-using ActiveDirectoryAuthorization.Interfaces;
-using AdminDashboardService;
-using AdminDashboardService.Accessors;
-using AdminDashboardService.Interfaces;
-using AdminDashboardService.Middleware;
-using AdminDashboardService.Services;
-using CommonApiUtilities;
-using CommonApiUtilities.Interfaces;
-using EmailUtility.Netcore;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Server.IISIntegration;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging.Console;
+using NLog;
 using NLog.Web;
-using PolicyAdmin;
-using PolicyAdmin.Models;
-using SB.AdminDashboard.EF.Data;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
+using System.Text.RegularExpressions;
 
-var builder = WebApplication.CreateBuilder(args);
-var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
-if (string.IsNullOrEmpty(environment))
-    throw new Exception("ASPNETCORE_ENVIRONMENT is not found in the System Environment variables. Please add it and do an IIS Reset!");
-
-builder.Configuration
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddJsonFile($"appsettings.{environment}.json", optional: false, reloadOnChange: true)
-    .AddEnvironmentVariables();
-
-void SetProcessEnvironmentOverride(string key)
+namespace AdminDashboardService
 {
-    var value = builder.Configuration[key];
-    if (!string.IsNullOrWhiteSpace(value))
+    public static class Program
     {
-        Environment.SetEnvironmentVariable(key, value, EnvironmentVariableTarget.Process);
-    }
-}
-
-SetProcessEnvironmentOverride("SqlDatabaseConnectionString");
-SetProcessEnvironmentOverride("SqlDatabaseConnectionStringFO");
-SetProcessEnvironmentOverride("SqlDatabaseConnectionStringMO");
-SetProcessEnvironmentOverride("DodsDevOpsConnectionString");
-
-// -------------------------------------------------------
-// LOGGER SETUP (log4net + NLog)
-// -------------------------------------------------------
-
-builder.Logging.ClearProviders();
-builder.Host.UseNLog();
-
-var log4netFile = $"log4net.{environment}.config";
-if (!File.Exists(log4netFile))
-{
-    log4netFile = "log4net.config"; // fallback
-}
-builder.Logging.AddLog4Net(log4netFile);
-
-// -------------------------------------------------------
-// COMMON API UTILITIES INTEGRATION
-// -------------------------------------------------------
-
-builder.Logging.AddConsole();
-var loggerFactory = LoggerFactory.Create(config => config.AddConsole());
-var logger = loggerFactory.CreateLogger("Program");
-ICommonUtilitiesLoader commonUtilitiesLoader;
-IApplicationConfiguration appConfiguration;
-
-try
-{
-    logger.LogInformation("Initializing CommonApiUtilities...");
-    var consts = new ReadOnlyDictionary<string, ReadOnlyCollection<string>>(new Dictionary<string, ReadOnlyCollection<string>>
-    {
-        { "ADMIN", new List<string>{ "CREATE", "Dashboard:Read", "UPDATE", "DELETE", "REFRESH" }.AsReadOnly() },
-        { "MO", new List<string>{ "Dashboard:Read" }.AsReadOnly() },
-        { "FO", new List<string>{ "Dashboard:Read" }.AsReadOnly() },
-        { "READONLY", new List<string>{ "Dashboard:Read" }.AsReadOnly() }
-    });
-
-    var fileArgs = new Dictionary<string, object>
-    {
-        { "ApplicationName", typeof(string)},
-        { "ArchiveFileLocation", typeof(string)},
-        { "SqlDatabaseConnectionString", typeof(string) },
-        { "SqlDatabaseConnectionStringFO", typeof(string) },
-        { "SqlDatabaseConnectionStringMO", typeof(string) },
-        { "AuditTableName", typeof(string)},
-        { "MappingTableName", typeof(string)},
-        { "UserRoleTableName", typeof(string)},
-        { "LogLocation", typeof(string)},
-        { "WhiteList", typeof(Dictionary<string, List<string>>)},
-        { "CORSOrigins", typeof(List<string>)}
-    };
-
-    var sqlArgs = new Dictionary<string, (string TableName, string WhereStatement, string ConnectionString)>
-    {
-        { "ApplicationMapping", ("[DODSDevOps].[dbo].[AdminDashboardConfigMapping]", "", "SqlDatabaseConnectionStringFO")},
-        { "ApplicationSqlMapping", ("[DODSDevOps].[dbo].[AdminDashboardConfigMapping]", "WHERE [Type] = 'SQL' ORDER BY [Application]", "SqlDatabaseConnectionStringFO")},
-        { "ApplicationCacheMapping", ("[DODSDevOps].[dbo].[AdminDashboardConfigMapping]", "WHERE [Type] = 'CACHE' ORDER BY [Application]", "SqlDatabaseConnectionStringFO")},
-        { "ApplicationFileMapping", ("[DODSDevOps].[dbo].[AdminDashboardConfigMapping]", "WHERE [Type] NOT IN ('SQL', 'CACHE') ORDER BY [Application]", "SqlDatabaseConnectionStringFO")},
-        { "ApplicationUserGroups", ("[DODSDevOps].[dbo].[UserRoles]", "WHERE [Application] like '%AdminDashboard%' ORDER BY [Application]", "SqlDatabaseConnectionStringFO")}
-    };
-
-    commonUtilitiesLoader = new CommonUtilitiesLoaderAll(consts, fileArgs, sqlArgs);
-    commonUtilitiesLoader.Startup(loggerFactory);
-    appConfiguration = commonUtilitiesLoader.GetApplicationConfiguration();
-
-    if (appConfiguration == null)
-        throw new InvalidOperationException("CommonApiUtilities failed to initialize configuration.");
-    commonUtilitiesLoader.Configure(builder.Services);
-    builder.Services.AddSingleton(appConfiguration);
-    builder.Services.AddSingleton(commonUtilitiesLoader);
-
-    DataCache.Current = new DataCache(appConfiguration, logger);
-    DataCache.Current.Initialize();
-
-    logger.LogInformation("CommonApiUtilities initialized successfully.");
-}
-catch (Exception ex)
-{
-    logger.LogError(ex, "Error initializing CommonApiUtilities.");
-    throw;
-}
-
-var allowedOrigins = builder.Configuration.GetSection("CORSOrigins").Get<string[]>();
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigin",
-        build =>
+        public static void Main(string[] args)
         {
-            build
-            .WithOrigins(allowedOrigins)
-            .AllowAnyMethod()
-            .AllowAnyHeader()     // <-- absolutely required
-            .AllowCredentials();
-        });
-});
+            // NLog: setup the logger first to catch all errors
+            Logger logger = LogManager.Setup().LoadConfigurationFromFile("nlog.config").GetCurrentClassLogger();
+            try
+            {
+                logger.Info("Initializing main");
+                BuildWebHost(args).Run();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Stopped program because of exception");
+                throw;
+            }
+            finally
+            {
+                // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
+                logger.Info("Shutting down");
+                NLog.LogManager.Shutdown();
+            }
+        }
 
+        /// <summary>
+        /// Detects if the application is running inside a Docker container
+        /// </summary>
+        private static bool IsRunningInDocker()
+        {
+            // Check for Docker-specific environment variable
+            var dotnetRunningInContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
+            if (!string.IsNullOrEmpty(dotnetRunningInContainer))
+            {
+                return true;
+            }
 
-// User Access
-const string AppName = "AdminDashboard";
-IPolicyHandler policyHandler;
+            // Check for /.dockerenv file (Linux containers)
+            if (File.Exists("/.dockerenv"))
+            {
+                return true;
+            }
 
-Dictionary<string, ReadOnlyCollection<string>> rolePolicyMap = new Dictionary<string, ReadOnlyCollection<string>>(StringComparer.OrdinalIgnoreCase);
-Dictionary<string, string> policyAdminConfigurationItems = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-var configSection_PolicyAdmin = builder.Configuration.GetSection("PolicyAdmin");
+            // Check for docker in cgroup (Linux containers)
+            try
+            {
+                if (File.Exists("/proc/1/cgroup"))
+                {
+                    var cgroup = File.ReadAllText("/proc/1/cgroup");
+                    if (cgroup.Contains("/docker") || cgroup.Contains("/kubepods"))
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore errors reading cgroup
+            }
 
-foreach (IConfigurationSection section in configSection_PolicyAdmin.GetChildren())
-{
-    policyAdminConfigurationItems.Add(section.Key, section.Value);
-}
+            return false;
+        }
 
-string connectionString = policyAdminConfigurationItems["PolicyConnectionString"];
-string policyTable = policyAdminConfigurationItems["PolicyTable"];
-string groupTable = policyAdminConfigurationItems["GroupTable"];
-
-
-IActiveDirectoryAuthorizationHandlerConfiguration m_activeDirectoryAuthorizationHandlerConfiguration = new ActiveDirectoryAuthorizationHandlerConfiguration()
-{
-    Whitelist = new Dictionary<string, List<string>>(),
-    SqlConnectionString = connectionString,
-    UserRoleTableName = "[dbo].[UserRoles]",
-    ApplicationName = AppName
-};
-
-policyHandler = PolicyHandler.Create(connectionString, policyTable, groupTable);
-
-foreach (string role in policyHandler.Cache.ApplicationRoles(AppName))
-{
-    var rolePolicies = new List<string>();
-    foreach (IPolicy policy in policyHandler.Cache.ApplicationPolicies(AppName, role))
-    {
-        rolePolicies.Add(policy.Name);
+        public static IWebHost BuildWebHost(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
+                .ConfigureLogging((context, logging) =>
+                {
+                    logging.ClearProviders(); // Remove all default providers first
+                    
+                    var env = context.HostingEnvironment.EnvironmentName;
+                    var isDocker = IsRunningInDocker();
+                    
+                    if (isDocker)
+                    {
+                        // Running in Docker: Use Console logging for all environments
+                        logging.AddConsole(options =>
+                        {
+                            options.FormatterName = "redacted";
+                        });
+                        
+                        // Add custom formatter that redacts sensitive information
+                        logging.AddConsoleFormatter<RedactedConsoleFormatter, ConsoleFormatterOptions>();
+                        
+                        logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
+                        
+                        Console.WriteLine($"[Program] Running in Docker - Configured Console logging with sensitive data redaction for {env} environment");
+                    }
+                    else
+                    {
+                        // Running on host/VM: Use NLog file logging
+                        logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+                        Console.WriteLine($"[Program] Running on host - Configured NLog file logging for {env} environment");
+                    }
+                })
+                .UseNLog()  // NLog: setup NLog for Dependency injection (only active when not using console)
+                .Build();
     }
-    rolePolicyMap.Add(role, new ReadOnlyCollection<string>(rolePolicies));
-}
 
-var authConsts = new ReadOnlyDictionary<string, ReadOnlyCollection<string>>(rolePolicyMap);
-IActiveDirectoryAuthorizationConstants m_activeDirectoryAuthorizationConstants = new ActiveDirectoryAuthorizationConstants(authConsts);
-// Configure Authentication with explicit Windows Authentication
-builder.Services.AddAuthentication(IISDefaults.AuthenticationScheme);
-
-// Add authorization with debugging
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("AllUsers", policy => policy.RequireAuthenticatedUser());
-
-builder.Services.AddAuthorization(options =>
-{
-    // Add basic policy for authentication debugging
-    options.AddPolicy("AuthenticatedUser", policy => policy.RequireAuthenticatedUser());
-
-    // Add policies from policy handler
-    foreach (IPolicy p in policyHandler.Cache.ApplicationPolicies(AppName))
+    /// <summary>
+    /// Custom console formatter that redacts sensitive information
+    /// </summary>
+    public class RedactedConsoleFormatter : ConsoleFormatter
     {
-        options.AddPolicy(p.Name, policy => policy.Requirements.Add(new ActiveDirectoryAuthorizationRequirements(p.Name)));
+        public RedactedConsoleFormatter() : base("redacted") { }
+
+        public override void Write<TState>(in LogEntry<TState> logEntry, IExternalScopeProvider scopeProvider, TextWriter textWriter)
+        {
+            string message = logEntry.Formatter?.Invoke(logEntry.State, logEntry.Exception);
+            
+            if (message == null)
+                return;
+
+            // Redact sensitive information
+            message = RedactSensitiveInfo(message);
+
+            // Format: level: category[eventId] message
+            textWriter.Write($"{logEntry.LogLevel.ToString().ToLower()}: ");
+            textWriter.Write($"{logEntry.Category}[{logEntry.EventId.Id}]");
+            textWriter.WriteLine();
+            textWriter.Write($"      {message}");
+            
+            if (logEntry.Exception != null)
+            {
+                textWriter.WriteLine();
+                textWriter.Write($"      {logEntry.Exception}");
+            }
+            
+            textWriter.WriteLine();
+        }
+
+        private static string RedactSensitiveInfo(string message)
+        {
+            if (string.IsNullOrEmpty(message))
+                return message;
+
+            // Redact User Id values
+            message = Regex.Replace(message, @"User Id=[^;]+", "User Id={REDACTED}", RegexOptions.IgnoreCase);
+            message = Regex.Replace(message, @"User=[^;]+", "User={REDACTED}", RegexOptions.IgnoreCase);
+            message = Regex.Replace(message, @"UID=[^;]+", "UID={REDACTED}", RegexOptions.IgnoreCase);
+            
+            // Redact Password values
+            message = Regex.Replace(message, @"Password=[^;]+", "Password={REDACTED}", RegexOptions.IgnoreCase);
+            message = Regex.Replace(message, @"Pwd=[^;]+", "Pwd={REDACTED}", RegexOptions.IgnoreCase);
+            
+            // Redact already masked placeholders like {{}}
+            message = Regex.Replace(message, @"\{\{\}\}", "{REDACTED}");
+
+            return message;
+        }
     }
-
-    // Set fallback policy to require authentication
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-});
-builder.Services.AddScoped<EmailConfiguration>();
-builder.Services.AddSingleton(m_activeDirectoryAuthorizationConstants);
-builder.Services.AddSingleton(m_activeDirectoryAuthorizationHandlerConfiguration);
-builder.Services.AddSingleton(policyHandler);
-builder.Services.AddScoped<ActiveDirectoryAuthorizationHandler>();
-builder.Services.AddSingleton<IAuthorizationHandler, ActiveDirectoryAuthorizationHandler>();
-
-// Add DbContext for DODSDevOps
-builder.Services.AddDbContext<DODSDevOps>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlDatabaseConnectionString")));
-
-// Add HttpContextAccessor for UserAccessor
-builder.Services.AddHttpContextAccessor();
-
-// Add Accessor interfaces
-builder.Services.AddSingleton<ILoggingService, LoggingService>();
-
-builder.Services.AddScoped<IRequestDataAccessor, RequestDataAccessor>();
-builder.Services.AddScoped<IApprovalDataAccessor, ApprovalDataAccessor>();
-builder.Services.AddScoped<IUserAccessor, UserAccessor>();
-
-builder.Services.AddScoped<IEmailSender, EmailSender>();
-builder.Services.AddScoped<IEmailService, EmailService>();
-
-builder.Services.AddControllers();
-builder.Services.AddMvc().AddNewtonsoftJson();
-builder.Services.AddControllers()
-.AddNewtonsoftJson(options =>
-{
-    options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
-});
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
-
-var app = builder.Build();
-app.UseCors("AllowSpecificOrigin");
-app.UseMiddleware<OptionsMiddleware>();
-app.UseMiddleware<ExceptionHandler>();
-app.UseRouting();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "AdminDashboard API v1");
-});
-
-app.MapControllers();
-app.Run();
-
+}

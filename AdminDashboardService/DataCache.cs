@@ -9,13 +9,13 @@ namespace AdminDashboardService
     public class DataCache
     {
         private readonly IApplicationConfiguration m_applicationConfiguration;
-        private readonly ILogger m_logger;
+        private readonly ILogger<Startup> m_logger;
         public DataTable DashboardMapping { get; private set; }
         public static DataCache Current { get; set; }
 
         public DataCache(
             IApplicationConfiguration applicationConfiguration,
-            ILogger logger)
+            ILogger<Startup> logger)
         {
             m_applicationConfiguration = applicationConfiguration ?? throw new ArgumentNullException(nameof(applicationConfiguration));
             m_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -38,11 +38,11 @@ namespace AdminDashboardService
 
         private void loadMappingTable()
         {
-            string sqlStatement = "SELECT * FROM [DODSDevOps].[dbo].[AdminDashboardConfigMapping];";
+            string sqlStatement = "SELECT * FROM [DODSDevOps].[dbo].[AdminDashboardMapping];";
 
             try
             {
-                using (var conn = new SqlConnection(m_applicationConfiguration.GetApplicationFileConfiguration<string>("SqlDatabaseConnectionStringFO")))
+                using (var conn = new SqlConnection(m_applicationConfiguration.GetApplicationFileConfiguration<string>("SqlDatabaseConnectionString")))
                 {
                     conn.Open();
                     if (conn.State != ConnectionState.Open)

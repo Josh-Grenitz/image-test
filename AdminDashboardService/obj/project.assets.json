@@ -15639,17 +15639,17 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\AdminDashboardService\\AdminDashboardService.csproj",
+      "projectUniqueName": "C:\\Temp\\TestGitlab\\image-test\\AdminDashboardService\\AdminDashboardService.csproj",
       "projectName": "AdminDashboardService",
-      "projectPath": "C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\AdminDashboardService\\AdminDashboardService.csproj",
+      "projectPath": "C:\\Temp\\TestGitlab\\image-test\\AdminDashboardService\\AdminDashboardService.csproj",
       "packagesPath": "C:\\Users\\grenit\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\AdminDashboardService\\obj\\",
+      "outputPath": "C:\\Temp\\TestGitlab\\image-test\\AdminDashboardService\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\NuGet.Config",
+        "C:\\Temp\\TestGitlab\\image-test\\NuGet.Config",
         "C:\\Users\\grenit\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
@@ -15659,7 +15659,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\nugetresources": {},
+        "C:\\Temp\\TestGitlab\\image-test\\nugetresources": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {

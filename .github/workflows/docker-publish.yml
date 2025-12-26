@@ -8,7 +8,7 @@ env:
   ACR_NAME: dtcrtestregistrycentraluspoc
   ACR_LOGIN: dtcrtestregistrycentraluspoc-gxb3a0c4cddgayev.azurecr.io
   IMAGE_NAME: admindashboard
-  IMAGE_TAG: v1.0.0
+  IMAGE_TAG: v1.0.1
 
 jobs:
   build-and-push:

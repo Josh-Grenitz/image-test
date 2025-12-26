@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "LOaSFDH7og4=",
+  "dgSpecHash": "Vdh/iwFhbcc=",
   "success": true,
-  "projectFilePath": "C:\\Users\\grenit\\Gitlab\\admin-dashboard-service\\AdminDashboardServiceUnitTests\\AdminDashboardServiceUnitTests.csproj",
+  "projectFilePath": "C:\\Temp\\TestGitlab\\image-test\\AdminDashboardServiceUnitTests\\AdminDashboardServiceUnitTests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\grenit\\.nuget\\packages\\azure.core\\1.36.0\\azure.core.1.36.0.nupkg.sha512",
     "C:\\Users\\grenit\\.nuget\\packages\\azure.identity\\1.10.4\\azure.identity.1.10.4.nupkg.sha512",

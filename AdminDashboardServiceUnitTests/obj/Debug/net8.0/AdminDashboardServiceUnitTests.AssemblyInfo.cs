@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AdminDashboardServiceUnitTests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+59b1de9b8e41f0bf22b031bce904a1969274c520")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c6c220934fc736ee1cf706b0a1dd994389f73c5c")]
 [assembly: System.Reflection.AssemblyProductAttribute("AdminDashboardServiceUnitTests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AdminDashboardServiceUnitTests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

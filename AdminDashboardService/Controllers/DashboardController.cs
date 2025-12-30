@@ -5,7 +5,7 @@ using System.Dynamic;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using AdminDashboardService;
 
 using Newtonsoft.Json;

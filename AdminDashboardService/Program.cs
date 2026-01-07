@@ -17,7 +17,16 @@ namespace AdminDashboardService
         public static void Main(string[] args)
         {
             // NLog: setup the logger first to catch all errors
-            Logger logger = LogManager.Setup().LoadConfigurationFromFile("nlog.config").GetCurrentClassLogger();
+            var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+
+            try
+            {
+                var builder = WebApplication.CreateBuilder(args);
+                
+                // Configure NLog
+                builder.Logging.ClearProviders();
+                builder.Logging.AddNLog();
+            }
             try
             {
                 logger.Info("Initializing main");

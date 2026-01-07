@@ -27,6 +27,11 @@ namespace AdminDashboardService
                 builder.Logging.ClearProviders();
                 builder.Logging.AddNLog();
             }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Stopped program because of exception");
+                throw;
+            }
             try
             {
                 logger.Info("Initializing main");

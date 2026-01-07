@@ -21,19 +21,6 @@ namespace AdminDashboardService
 
             try
             {
-                var builder = WebApplication.CreateBuilder(args);
-                
-                // Configure NLog
-                builder.Logging.ClearProviders();
-                builder.Logging.AddNLog();
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "Stopped program because of exception");
-                throw;
-            }
-            try
-            {
                 logger.Info("Initializing main");
                 BuildWebHost(args).Run();
             }
@@ -93,22 +80,20 @@ namespace AdminDashboardService
                 .UseStartup<Startup>()
                 .ConfigureLogging((context, logging) =>
                 {
-                    logging.ClearProviders(); // Remove all default providers first
+                    logging.ClearProviders();
                     
                     var env = context.HostingEnvironment.EnvironmentName;
                     var isDocker = IsRunningInDocker();
                     
                     if (isDocker)
                     {
-                        // Running in Docker: Use Console logging for all environments
+                        // Running in Docker: Use Console logging with redaction
                         logging.AddConsole(options =>
                         {
                             options.FormatterName = "redacted";
                         });
                         
-                        // Add custom formatter that redacts sensitive information
                         logging.AddConsoleFormatter<RedactedConsoleFormatter, ConsoleFormatterOptions>();
-                        
                         logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
                         
                         Console.WriteLine($"[Program] Running in Docker - Configured Console logging with sensitive data redaction for {env} environment");
@@ -120,7 +105,7 @@ namespace AdminDashboardService
                         Console.WriteLine($"[Program] Running on host - Configured NLog file logging for {env} environment");
                     }
                 })
-                .UseNLog()  // NLog: setup NLog for Dependency injection (only active when not using console)
+                .UseNLog()
                 .Build();
     }
 
@@ -141,7 +126,6 @@ namespace AdminDashboardService
             // Redact sensitive information
             message = RedactSensitiveInfo(message);
 
-            // Format: level: category[eventId] message
             textWriter.Write($"{logEntry.LogLevel.ToString().ToLower()}: ");
             textWriter.Write($"{logEntry.Category}[{logEntry.EventId.Id}]");
             textWriter.WriteLine();
@@ -161,16 +145,11 @@ namespace AdminDashboardService
             if (string.IsNullOrEmpty(message))
                 return message;
 
-            // Redact User Id values
             message = Regex.Replace(message, @"User Id=[^;]+", "User Id={REDACTED}", RegexOptions.IgnoreCase);
             message = Regex.Replace(message, @"User=[^;]+", "User={REDACTED}", RegexOptions.IgnoreCase);
             message = Regex.Replace(message, @"UID=[^;]+", "UID={REDACTED}", RegexOptions.IgnoreCase);
-            
-            // Redact Password values
             message = Regex.Replace(message, @"Password=[^;]+", "Password={REDACTED}", RegexOptions.IgnoreCase);
             message = Regex.Replace(message, @"Pwd=[^;]+", "Pwd={REDACTED}", RegexOptions.IgnoreCase);
-            
-            // Redact already masked placeholders like {{}}
             message = Regex.Replace(message, @"\{\{\}\}", "{REDACTED}");
 
             return message;

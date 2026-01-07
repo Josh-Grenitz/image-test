@@ -66,6 +66,7 @@ namespace AdminDashboardService
                         new Azure.Core.TokenRequestContext(new[] { "https://database.windows.net/" })
                     ).Token;
                     conn.Open();
+                    Console.WriteLine("Connected to Azure SQL Managed Instance using User-Assigned Managed Identity.");
                     if (conn.State != ConnectionState.Open)
                     {
                         throw new InvalidOperationException("Failed to connect to SQL server.");
